@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyaya Assist — Prosecution Intelligence Layer</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1117;
+    --ink-2: #161b22;
+    --ink-3: #21262d;
+    --ink-4: #30363d;
+    --mist: #8b949e;
+    --paper: #c9d1d9;
+    --cream: #e6edf3;
+    --gold: #d4a017;
+    --gold-dim: #a07a10;
+    --red: #f85149;
+    --amber: #e3b341;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --saffron: #ff9933;
+    --border: rgba(48,54,61,0.8);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--ink-2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .logo-mark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+  .logo-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .topbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--mist);
+  }
+  .jurisdiction-pill {
+    background: rgba(212,160,23,0.1);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+  .user-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .user-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--ink-2);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+  }
+  .sidebar-section {
+    padding: 0.4rem 1.2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--mist);
+    text-transform: uppercase;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    font-size: 0.95rem;
+  }
+  .nav-item:hover { background: var(--ink-3); }
+  .nav-item.active {
+    background: rgba(212,160,23,0.08);
+    border-left-color: var(--gold);
+    color: var(--gold);
+  }
+  .nav-icon { font-size: 0.9rem; opacity: 0.8; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+  .nav-badge.amber { background: var(--amber); color: var(--ink); }
+  .nav-badge.muted { background: var(--ink-4); color: var(--mist); }
+
+  /* ── MAIN ── */
+  .main {
+    padding: 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--cream);
+  }
+  .page-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+  }
+  .header-actions { display: flex; gap: 0.75rem; }
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--ink-4);
+    color: var(--mist);
+  }
+  .btn-ghost:hover { border-color: var(--mist); color: var(--cream); }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .btn-gold:hover { background: #e8b520; }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat-cell {
+    background: var(--ink-2);
+    padding: 1rem 1.25rem;
+  }
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 0.4rem;
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+  .stat-value.red { color: var(--red); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.gold { color: var(--gold); }
+  .stat-delta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    margin-top: 0.3rem;
+  }
+
+  /* ── TWO-COL GRID ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .three-col { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 1.5rem; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--ink-2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+  }
+  .card-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+  }
+  .card-body { padding: 1.25rem; }
+
+  /* ── ALERT QUEUE ── */
+  .alert-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.8rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-row:hover { background: var(--ink-3); }
+  .alert-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .alert-dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .alert-dot.amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .alert-dot.green { background: var(--green); }
+  .alert-case {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--blue);
+    margin-bottom: 0.15rem;
+  }
+  .alert-desc { font-size: 0.85rem; color: var(--paper); }
+  .alert-section {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+    text-align: right;
+  }
+  .alert-days {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .alert-days.red { color: var(--red); }
+  .alert-days.amber { color: var(--amber); }
+  .alert-days.green { color: var(--green); }
+
+  /* ── CASE DETAIL PANEL ── */
+  .detail-panel {
+    background: var(--ink-2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .detail-banner {
+    background: linear-gradient(135deg, rgba(248,81,73,0.15) 0%, rgba(248,81,73,0.03) 100%);
+    border-bottom: 1px solid rgba(248,81,73,0.3);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .detail-banner.amber-bg {
+    background: linear-gradient(135deg, rgba(227,179,65,0.15) 0%, rgba(227,179,65,0.03) 100%);
+    border-bottom-color: rgba(227,179,65,0.3);
+  }
+  .detail-case-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .detail-case-name {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--cream);
+  }
+  .risk-badge {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+  .risk-high { background: rgba(248,81,73,0.2); color: var(--red); border: 1px solid rgba(248,81,73,0.4); }
+  .risk-medium { background: rgba(227,179,65,0.15); color: var(--amber); border: 1px solid rgba(227,179,65,0.35); }
+  .risk-low { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-cell {
+    background: var(--ink-2);
+    padding: 1rem 1.25rem;
+  }
+  .detail-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 0.35rem;
+  }
+  .detail-val {
+    font-size: 0.95rem;
+    color: var(--paper);
+  }
+  .detail-val.mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+  }
+  .detail-val.critical { color: var(--red); font-weight: 600; }
+  .detail-val.warn { color: var(--amber); }
+
+  /* ── SCORE METER ── */
+  .score-section { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+  }
+  .score-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .score-track {
+    height: 6px;
+    background: var(--ink-4);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+  .score-fill.red { background: linear-gradient(90deg, var(--red), #ff6b6b); }
+  .score-fill.amber { background: linear-gradient(90deg, var(--gold-dim), var(--amber)); }
+  .score-fill.green { background: linear-gradient(90deg, #2ea043, var(--green)); }
+  .score-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--mist);
+  }
+
+  /* ── EVIDENCE GAPS ── */
+  .gap-list { padding: 0 1.5rem 1.25rem; }
+  .gap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    font-size: 0.88rem;
+  }
+  .gap-item:last-child { border-bottom: none; }
+  .gap-icon { font-size: 0.75rem; margin-top: 2px; flex-shrink: 0; }
+  .gap-text { color: var(--paper); line-height: 1.4; }
+  .gap-text strong { color: var(--cream); font-weight: 500; }
+  .gap-severity {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+  .sev-critical { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+  .sev-major { background: rgba(227,179,65,0.12); color: var(--amber); border: 1px solid rgba(227,179,65,0.3); }
+  .sev-minor { background: rgba(88,166,255,0.1); color: var(--blue); border: 1px solid rgba(88,166,255,0.2); }
+
+  /* ── SIMILAR CASES ── */
+  .case-result {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .case-result:last-child { border-bottom: none; }
+  .case-result:hover { background: rgba(88,166,255,0.04); }
+  .case-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+  }
+  .case-name {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--blue);
+  }
+  .case-sim {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mist);
+  }
+  .case-sim span { color: var(--green); font-weight: 600; }
+  .case-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--mist);
+    margin-bottom: 0.4rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .case-outcome {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+  }
+  .outcome-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .outcome-dot.convicted { background: var(--green); }
+  .outcome-dot.acquitted { background: var(--red); }
+  .case-snippet {
+    font-size: 0.82rem;
+    color: var(--mist);
+    line-height: 1.45;
+    margin-top: 0.4rem;
+    border-left: 2px solid var(--ink-4);
+    padding-left: 0.75rem;
+    font-style: italic;
+  }
+  .highlight-arg { color: var(--gold); background: rgba(212,160,23,0.08); padding: 0 2px; border-radius: 1px; }
+
+  /* ── ARGUMENT BUILDER ── */
+  .arg-section {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .arg-section:last-child { border-bottom: none; }
+  .arg-type {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .arg-type.winning { color: var(--green); }
+  .arg-type.losing { color: var(--red); }
+  .arg-point {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.86rem;
+    color: var(--paper);
+    line-height: 1.4;
+  }
+  .arg-bullet { color: var(--mist); flex-shrink: 0; }
+
+  /* ── SEARCH BAR ── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--ink-3);
+    border: 1px solid var(--ink-4);
+    border-radius: 2px;
+    padding: 0.65rem 1rem 0.65rem 2.5rem;
+    color: var(--cream);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--gold-dim); }
+  .search-input::placeholder { color: var(--mist); }
+  .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mist);
+    font-size: 0.8rem;
+  }
+
+  /* ── DEADLINE TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding: 1rem 1.25rem;
+  }
+  .timeline-track {
+    height: 4px;
+    background: var(--ink-4);
+    border-radius: 2px;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  .timeline-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+  }
+  .timeline-cursor {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 2px solid var(--amber);
+    box-shadow: 0 0 10px var(--amber);
+  }
+  .timeline-markers {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    margin-top: 0.5rem;
+  }
+  .timeline-marker-label {
+    text-align: center;
+    transform: translateX(-50%);
+  }
+  .deadline-callout {
+    background: rgba(227,179,65,0.08);
+    border: 1px solid rgba(227,179,65,0.25);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .callout-icon { font-size: 1.2rem; }
+  .callout-text { font-size: 0.88rem; color: var(--paper); line-height: 1.4; }
+  .callout-text strong { color: var(--amber); }
+
+  /* ── SECTION TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+  .tab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.25rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--mist);
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--cream); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── VERDICT LINE ── */
+  .verdict-line {
+    background: rgba(248,81,73,0.06);
+    border: 1px solid rgba(248,81,73,0.2);
+    border-radius: 2px;
+    padding: 1rem 1.25rem;
+    margin: 0 1.25rem 1.25rem;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--paper);
+    line-height: 1.5;
+    position: relative;
+  }
+  .verdict-line::before {
+    content: '"';
+    font-size: 2.5rem;
+    color: rgba(248,81,73,0.2);
+    position: absolute;
+    top: -0.3rem;
+    left: 0.75rem;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .verdict-attr {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    margin-top: 0.4rem;
+    font-style: normal;
+  }
+
+  /* ── ACQUITTAL RISK DIAL ── */
+  .risk-dial-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+  }
+  .risk-dial-svg { overflow: visible; }
+  .risk-label-big {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .risk-label-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-anchor: middle;
+    fill: #8b949e;
+  }
+  .risk-factors { width: 100%; margin-top: 0.5rem; }
+  .risk-factor-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    font-size: 0.82rem;
+  }
+  .risk-factor-row:last-child { border-bottom: none; }
+  .rf-name { color: var(--paper); }
+  .rf-impact {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+  .rf-neg { background: rgba(248,81,73,0.12); color: var(--red); }
+  .rf-pos { background: rgba(63,185,80,0.1); color: var(--green); }
+  .rf-neu { background: rgba(88,166,255,0.1); color: var(--blue); }
+
+  /* ── ANIMATE IN ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .main > * {
+    animation: fadeUp 0.35s ease both;
+  }
+  .main > *:nth-child(1) { animation-delay: 0.05s; }
+  .main > *:nth-child(2) { animation-delay: 0.1s; }
+  .main > *:nth-child(3) { animation-delay: 0.15s; }
+  .main > *:nth-child(4) { animation-delay: 0.2s; }
+  .main > *:nth-child(5) { animation-delay: 0.25s; }
+
+  /* ── PULSE ANIMATION ── */
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 6px var(--red); }
+    50% { box-shadow: 0 0 12px var(--red), 0 0 20px rgba(248,81,73,0.3); }
+  }
+  .alert-dot.red { animation: pulse-red 2s infinite; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--ink-4); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <span class="logo-mark">⚖ Nyaya Assist</span>
+    <span class="logo-sub">Prosecution Intelligence Layer · Beta</span>
+  </div>
+  <div class="topbar-meta">
+    <span class="jurisdiction-pill">Karnataka · Sessions Division</span>
+    <span>4,200 HC Judgments · BNSS 2023</span>
+    <div class="user-tag">
+      <div class="user-dot"></div>
+      <span>PP Ravi Kumar, Bengaluru City</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">Workspace</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showSection('chargesheet')">
+      <span class="nav-icon">◉</span> Chargesheet Scorer
+      <span class="nav-badge amber">1</span>
+    </div>
+    <div class="nav-item" onclick="showSection('similar')">
+      <span class="nav-icon">◎</span> Similar Cases
+      <span class="nav-badge muted">4.2K</span>
+    </div>
+    <div class="nav-item" onclick="showSection('acquittal')">
+      <span class="nav-icon">◐</span> Acquittal Risk
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="sidebar-section">Compliance</div>
+    <div class="nav-item" onclick="showSection('deadlines')">
+      <span class="nav-icon">◷</span> BNSS §193 Deadlines
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">◫</span> FIR Registry
+    </div>
+    <div class="sidebar-section">Reports</div>
+    <div class="nav-item">
+      <span class="nav-icon">◧</span> Monthly Summary
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">◦</span> Settings
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT (DASHBOARD) -->
+  <main class="main" id="section-dashboard">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Good morning, PP Kumar</div>
+        <div class="page-subtitle">TUESDAY · 18 MARCH 2026 · BENGALURU SESSIONS COURT</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost">Export Report</button>
+        <button class="btn btn-gold" onclick="showSection('chargesheet')">Open Case CS-2026-0441</button>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value gold">47</div>
+        <div class="stat-delta">↑ 3 filed this week</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">BNSS Deadline Breaches</div>
+        <div class="stat-value red">2</div>
+        <div class="stat-delta">Immediate action required</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">High Acquittal Risk</div>
+        <div class="stat-value amber">3</div>
+        <div class="stat-delta">Supplementary inv. pending</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Conviction Rate (YTD)</div>
+        <div class="stat-value green">74%</div>
+        <div class="stat-delta">↑ 6pp vs last quarter</div>
+      </div>
+    </div>
+
+    <!-- Two-col: alerts + detail -->
+    <div class="two-col">
+
+      <!-- Alert queue -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Priority Alerts</div>
+          <div class="card-tag">SORTED BY URGENCY</div>
+        </div>
+        <div class="alert-row" onclick="showSection('deadlines')">
+          <div class="alert-dot red"></div>
+          <div>
+            <div class="alert-case">CS-2026-0314 · IPC §302</div>
+            <div class="alert-desc">State v. Arjun Nayak — Chargesheet deadline BREACHED</div>
+          </div>
+          <div class="alert-section">BNSS §193<br>60-day rule</div>
+          <div class="alert-days red">+7 days<br><span style="font-size:0.6rem;font-family:'IBM Plex Mono',mono;font-weight:400;color:var(--mist)">overdue</span></div>
+        </div>
+        <div class="alert-row" onclick="showSection('deadlines')">
+          <div class="alert-dot red"></div>
+          <div>
+            <div class="alert-case">CS-2026-0289 · POCSO §6</div>
+            <div class="alert-desc">State v. Suresh Rao — Bail-by-default risk today</div>
+          </div>
+          <div class="alert-section">BNSS §193<br>90-day rule</div>
+          <div class="alert-days red">Day 88<br><span style="font-size:0.6rem;font-family:'IBM Plex Mono',mono;font-weight:400;color:var(--mist)">2 days left</span></div>
+        </div>
+        <div class="alert-row" onclick="showSection('acquittal')">
+          <div class="alert-dot amber"></div>
+          <div>
+            <div class="alert-case">CS-2026-0441 · BNS §103</div>
+            <div class="alert-desc">State v. Prakash Reddy — Acquittal risk elevated</div>
+          </div>
+          <div class="alert-section">RISK SCORE<br>AI analysis</div>
+          <div class="alert-days amber">68%<br><span style="font-size:0.6rem;font-family:'IBM Plex Mono',mono;font-weight:400;color:var(--mist)">acquittal risk</span></div>
+        </div>
+        <div class="alert-row" onclick="showSection('chargesheet')">
+          <div class="alert-dot amber"></div>
+          <div>
+            <div class="alert-case">CS-2026-0441 · BNS §103</div>
+            <div class="alert-desc">State v. Prakash Reddy — Evidence gap detected</div>
+          </div>
+          <div class="alert-section">QUALITY<br>score</div>
+          <div class="alert-days amber">54/100<br><span style="font-size:0.6rem;font-family:'IBM Plex Mono',mono;font-weight:400;color:var(--mist)">chargesheet</span></div>
+        </div>
+        <div class="alert-row">
+          <div class="alert-dot green"></div>
+          <div>
+            <div class="alert-case">CS-2026-0398 · BNS §356</div>
+            <div class="alert-desc">State v. Mohammad Ismail — Chargesheet filed on time</div>
+          </div>
+          <div class="alert-section">BNSS §193<br>compliant</div>
+          <div class="alert-days green">Day 42<br><span style="font-size:0.6rem;font-family:'IBM Plex Mono',mono;font-weight:400;color:var(--mist)">18 days left</span></div>
+        </div>
+      </div>
+
+      <!-- Pulled verdict quote + quick stats -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📌 Why This Matters</div>
+            <div class="card-tag">PRECEDENT · MYSURU HC 2022</div>
+          </div>
+          <div style="padding-top:0.5rem;">
+            <div class="verdict-line">
+              The chargesheet was filed on the 74th day. BNSS §193 required filing within 60 days. The accused was not guilty of the delay. Bail was granted by operation of law. The prosecution offers no answer to this court.
+              <div class="verdict-attr">— Justice A.V. Chandrashekar · Karnataka HC · State v. Prakash, Mysuru · 2022</div>
+            </div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;font-size:0.88rem;color:var(--paper);line-height:1.6;">
+            Nyaya Assist would have flagged this case on <strong style="color:var(--amber)">Day 45</strong> — 15 days before the deadline. The chargesheet could have been filed on time. The accused would not have walked free.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 System Coverage</div>
+            <div class="card-tag">KARNATAKA · LIVE</div>
+          </div>
+          <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div class="detail-key">HC Judgments Indexed</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--cream);">4,200</div>
+            </div>
+            <div>
+              <div class="detail-key">BNS Sections Covered</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--cream);">127</div>
+            </div>
+            <div>
+              <div class="detail-key">Avg. Retrieval Time</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--cream);">1.2s</div>
+            </div>
+            <div>
+              <div class="detail-key">Conviction Patterns Learnt</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;color:var(--cream);">3,840</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CHARGESHEET SCORER -->
+  <main class="main" id="section-chargesheet" style="display:none;">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Chargesheet Quality Scorer</div>
+        <div class="page-subtitle">CS-2026-0441 · STATE V. PRAKASH REDDY · BNS §103 (CULPABLE HOMICIDE)</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showSection('dashboard')">← Back</button>
+        <button class="btn btn-gold">Request Supplementary Inv.</button>
+      </div>
+    </div>
+
+    <!-- Case banner -->
+    <div class="detail-panel">
+      <div class="detail-banner amber-bg">
+        <div>
+          <div class="detail-case-id">FIR NO. 0441/2026 · CUBBON PARK PS · BENGALURU</div>
+          <div class="detail-case-name">State v. Prakash Reddy</div>
+        </div>
+        <span class="risk-badge risk-medium">REVIEW REQUIRED</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-cell">
+          <div class="detail-key">Charge</div>
+          <div class="detail-val">BNS §103 — Culpable homicide not amounting to murder</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-key">FIR Date</div>
+          <div class="detail-val mono">12 JAN 2026</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-key">Chargesheet Deadline</div>
+          <div class="detail-val warn mono">13 MAR 2026 (Day 60)</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-key">Investigating Officer</div>
+          <div class="detail-val">SI Deepak Rao, Cubbon Park PS</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-key">Accused in Custody</div>
+          <div class="detail-val mono">YES — JUDICIAL CUSTODY</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-key">Witnesses Examined</div>
+          <div class="detail-val mono">4 / 9 identified</div>
+        </div>
+      </div>
+
+      <!-- Score meter -->
+      <div class="score-section">
+        <div class="score-header">
+          <div class="score-label">Chargesheet Conviction Readiness Score</div>
+          <div class="score-num">54<span style="font-size:1rem;color:var(--mist);font-weight:400">/100</span></div>
+        </div>
+        <div class="score-track">
+          <div class="score-fill amber" style="width:54%"></div>
+        </div>
+        <div class="score-ticks">
+          <span>0</span>
+          <span>WEAK ←——→ STRONG</span>
+          <span>100</span>
+        </div>
+        <div style="margin-top:0.75rem;font-size:0.85rem;color:var(--mist);">
+          Based on 847 similar BNS §103 Karnataka HC cases. Cases scoring below 60 acquit at <strong style="color:var(--amber)">71%</strong> rate. Minimum viable score for conviction: <strong style="color:var(--green)">72</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Two col: gaps + similar args -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔍 Evidence Gap Analysis</div>
+          <div class="card-tag">5 GAPS DETECTED</div>
+        </div>
+        <div class="gap-list" style="padding-top:0.5rem;">
+          <div class="gap-item">
+            <span class="gap-icon" style="color:var(--red)">▲</span>
+            <div class="gap-text"><strong>Post-mortem report missing.</strong> No FSL-certified PM report attached. In 94% of §103 convictions, certified PM report was exhibit #1.</div>
+            <span class="gap-severity sev-critical">CRITICAL</span>
+          </div>
+          <div class="gap-item">
+            <span class="gap-icon" style="color:var(--red)">▲</span>
+            <div class="gap-text"><strong>No eye-witness corroboration.</strong> CCTV footage identified 2 proximate witnesses (W-5, W-6) — neither examined. Courts rejected similar chargesheets in State v. Rajesh (2021).</div>
+            <span class="gap-severity sev-critical">CRITICAL</span>
+          </div>
+          <div class="gap-item">
+            <span class="gap-icon" style="color:var(--amber)">◆</span>
+            <div class="gap-text"><strong>Weapon not recovered.</strong> Knife mentioned in FIR as "iron implement" — not produced before court. FSL weapon analysis absent.</div>
+            <span class="gap-severity sev-major">MAJOR</span>
+          </div>
+          <div class="gap-item">
+            <span class="gap-icon" style="color:var(--amber)">◆</span>
+            <div class="gap-text"><strong>Motive chain incomplete.</strong> Prosecution alleges property dispute — revenue records not exhibited. 3 Karnataka judgments acquitted on identical motive gap.</div>
+            <span class="gap-severity sev-major">MAJOR</span>
+          </div>
+          <div class="gap-item">
+            <span class="gap-icon" style="color:var(--blue)">●</span>
+            <div class="gap-text"><strong>Section 164 CrPC statement missing.</strong> Victim's dying declaration recorded by SI — not magistrate-recorded. Weight will be challenged under BNS §26.</div>
+            <span class="gap-severity sev-minor">MINOR</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Recommended Actions</div>
+          <div class="card-tag">BEFORE FILING</div>
+        </div>
+        <div style="padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);border-radius:2px;padding:0.85rem 1rem;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--red);letter-spacing:0.1em;margin-bottom:0.35rem;">CRITICAL — DO BEFORE FILING</div>
+            <div style="font-size:0.85rem;color:var(--paper);line-height:1.45;">Obtain FSL-certified post-mortem report from Victoria Hospital. File delay application if needed — but do <em>not</em> file chargesheet without this document.</div>
+          </div>
+          <div style="background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);border-radius:2px;padding:0.85rem 1rem;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--red);letter-spacing:0.1em;margin-bottom:0.35rem;">CRITICAL — WITNESS EXAMINATION</div>
+            <div style="font-size:0.85rem;color:var(--paper);line-height:1.45;">Issue notice to W-5 (Kavitha, shopkeeper) and W-6 (auto-driver identified on CCTV). Examine under §161. CCTV timestamp places both within 20m of crime scene.</div>
+          </div>
+          <div style="background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:2px;padding:0.85rem 1rem;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--amber);letter-spacing:0.1em;margin-bottom:0.35rem;">MAJOR — REQUEST SUPPLEMENTARY INV.</div>
+            <div style="font-size:0.85rem;color:var(--paper);line-height:1.45;">Send IO back for weapon recovery. Exhibit survey sketches + revenue records showing land dispute with accused (Sy. No. 142, Yelahanka). This closes the motive chain.</div>
+          </div>
+          <div style="background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.18);border-radius:2px;padding:0.85rem 1rem;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--blue);letter-spacing:0.1em;margin-bottom:0.35rem;">ADVISORY — DYING DECLARATION</div>
+            <div style="font-size:0.85rem;color:var(--paper);line-height:1.45;">Re-record dying declaration before nearest Magistrate if victim still alive. SI-recorded statement will be challenged — magistrate recording raises admissibility weight significantly.</div>
+          </div>
+          <div style="text-align:center;padding-top:0.25rem;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--mist);">Estimated score after remediation</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--green);">83<span style="font-size:1rem;color:var(--mist);font-weight:400">/100</span></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--green);">↑ ABOVE CONVICTION THRESHOLD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- SIMILAR CASES -->
+  <main class="main" id="section-similar" style="display:none;">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Similar Case Retrieval</div>
+        <div class="page-subtitle">FAISS SEMANTIC SEARCH · 4,200 KARNATAKA HC JUDGMENTS · sentence-transformers/all-MiniLM-L6-v2</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showSection('dashboard')">← Back</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body" style="padding-bottom:0;">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search: accused stabbed victim in dispute over land rights, no eye-witnesses, knife not recovered…" value="BNS §103 — culpable homicide, land dispute, weapon not recovered, dying declaration">
+        </div>
+        <div class="tabs">
+          <div class="tab active">Top Matches</div>
+          <div class="tab">Winning Arguments</div>
+          <div class="tab">Losing Patterns</div>
+          <div class="tab">Section §103 Overview</div>
+        </div>
+      </div>
+
+      <div class="case-result">
+        <div class="case-result-header">
+          <div class="case-name">State of Karnataka v. Basavaraj M.</div>
+          <div class="case-sim">Similarity: <span>94%</span></div>
+        </div>
+        <div class="case-meta">
+          <span>Karnataka HC · 2023</span>
+          <span>Dharwad Bench</span>
+          <span>BNS §103 / IPC §304</span>
+        </div>
+        <div class="case-outcome">
+          <div class="outcome-dot convicted"></div>
+          <span style="color:var(--green);font-weight:500;">Convicted</span>
+          <span style="color:var(--mist);margin-left:0.5rem;font-size:0.75rem;">· 7 years RI</span>
+        </div>
+        <div class="case-snippet">
+          Court held that <span class="highlight-arg">non-recovery of weapon, when motive is conclusively established through documentary evidence</span>, does not vitiate conviction. Revenue records and land survey sketches were treated as direct proof of motive and sustained the charge.
+        </div>
+      </div>
+
+      <div class="case-result">
+        <div class="case-result-header">
+          <div class="case-name">State v. Prakash (Mysuru)</div>
+          <div class="case-sim">Similarity: <span>91%</span></div>
+        </div>
+        <div class="case-meta">
+          <span>Karnataka HC · 2022</span>
+          <span>Mysuru Bench</span>
+          <span>IPC §304 / BNSS §193</span>
+        </div>
+        <div class="case-outcome">
+          <div class="outcome-dot acquitted"></div>
+          <span style="color:var(--red);font-weight:500;">Acquitted — Bail by Default</span>
+        </div>
+        <div class="case-snippet">
+          <span class="highlight-arg">Chargesheet filed on 74th day, breaching 60-day BNSS §193 deadline.</span> Court noted prosecution offered no explanation for delay. Bail granted by operation of law. This case is cited as the primary precedent for mandatory BNSS compliance monitoring.
+        </div>
+      </div>
+
+      <div class="case-result">
+        <div class="case-result-header">
+          <div class="case-name">State v. Krishnappa</div>
+          <div class="case-sim">Similarity: <span>87%</span></div>
+        </div>
+        <div class="case-meta">
+          <span>Karnataka HC · 2021</span>
+          <span>Bengaluru Principal Bench</span>
+          <span>IPC §304 Part II</span>
+        </div>
+        <div class="case-outcome">
+          <div class="outcome-dot acquitted"></div>
+          <span style="color:var(--red);font-weight:500;">Acquitted</span>
+        </div>
+        <div class="case-snippet">
+          <span class="highlight-arg">Dying declaration recorded by SI, not magistrate, held inadmissible.</span> Court applied Sec. 32 Evidence Act strictly. No other direct evidence. Prosecution witness (PW-3) turned hostile. All circumstances pointed to accused but legally insufficient for conviction.
+        </div>
+      </div>
+
+      <div class="case-result">
+        <div class="case-result-header">
+          <div class="case-name">State v. Raju @ Rajanna</div>
+          <div class="case-sim">Similarity: <span>83%</span></div>
+        </div>
+        <div class="case-meta">
+          <span>Karnataka HC · 2020</span>
+          <span>Kalaburagi Bench</span>
+          <span>IPC §304 Part I</span>
+        </div>
+        <div class="case-outcome">
+          <div class="outcome-dot convicted"></div>
+          <span style="color:var(--green);font-weight:500;">Convicted</span>
+          <span style="color:var(--mist);margin-left:0.5rem;font-size:0.75rem;">· 10 years RI</span>
+        </div>
+        <div class="case-snippet">
+          Conviction sustained despite weapon non-recovery. <span class="highlight-arg">Two independent eye-witnesses, one of whom was a government servant, held to be credible.</span> Court distinguished between direct testimony of quality witnesses and circumstantial weapon-recovery evidence.
+        </div>
+      </div>
+
+      <div class="case-result">
+        <div class="case-result-header">
+          <div class="case-name">State v. Govindaswamy</div>
+          <div class="case-sim">Similarity: <span>79%</span></div>
+        </div>
+        <div class="case-meta">
+          <span>Karnataka HC · 2019</span>
+          <span>Mysuru Bench</span>
+          <span>IPC §304 Part II</span>
+        </div>
+        <div class="case-outcome">
+          <div class="outcome-dot acquitted"></div>
+          <span style="color:var(--red);font-weight:500;">Acquitted</span>
+        </div>
+        <div class="case-snippet">
+          <span class="highlight-arg">Motive chain broken — prosecution alleged property dispute but failed to exhibit relevant revenue documents.</span> Court observed that motive alone, without documentary corroboration, carries minimal evidentiary weight in §304 cases.
+        </div>
+      </div>
+    </div>
+
+    <!-- Argument builder -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚡ BNS §103 Argument Builder</div>
+        <div class="card-tag">EXTRACTED FROM 5 MATCHING JUDGMENTS</div>
+      </div>
+      <div class="arg-section">
+        <div class="arg-type winning">▲ WINNING ARGUMENTS (use these)</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> Exhibit revenue records and survey sketches to establish motive chain conclusively — courts treat documentary motive proof as equivalent to direct evidence (Basavaraj, 2023).</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> Produce minimum two independent, credible witnesses. Government servants and healthcare workers have been consistently treated as high-credibility PWs (Rajanna, 2020).</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> Argue non-recovery of weapon as consistent with accused's guilt — distinguish from innocence using flight pattern and last-seen evidence.</div>
+      </div>
+      <div class="arg-section">
+        <div class="arg-type losing">▼ LOSING PATTERNS (avoid / remedy)</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> <strong style="color:var(--cream)">Never file without a magistrate-recorded dying declaration.</strong> SI-recorded statements have been rejected in 3 of 5 similar Karnataka cases. (Krishnappa, 2021)</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> <strong style="color:var(--cream)">Close all identified but unexamined witnesses before filing.</strong> Hostile PW-3 in Govindaswamy (2019) collapsed the entire prosecution case despite strong circumstantial evidence.</div>
+        <div class="arg-point"><span class="arg-bullet">→</span> <strong style="color:var(--cream)">File within 60 days.</strong> BNSS §193 deadline breach results in bail by default regardless of evidence quality. (State v. Prakash, Mysuru, 2022)</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ACQUITTAL RISK -->
+  <main class="main" id="section-acquittal" style="display:none;">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Acquittal Risk Analysis</div>
+        <div class="page-subtitle">CS-2026-0441 · STATE V. PRAKASH REDDY · AT CHARGESHEET RECEIPT</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showSection('dashboard')">← Back</button>
+        <button class="btn btn-gold">Request Supplementary Investigation</button>
+      </div>
+    </div>
+
+    <div class="three-col">
+      <!-- Dial -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Acquittal Probability</div>
+          <div class="card-tag">AT CURRENT EVIDENCE STATE</div>
+        </div>
+        <div class="risk-dial-wrap">
+          <svg class="risk-dial-svg" width="200" height="130" viewBox="0 0 200 130">
+            <!-- Track arc -->
+            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="#30363d" stroke-width="14" stroke-linecap="round"/>
+            <!-- Fill arc (68% = ~122 deg of 180) -->
+            <path d="M 20 110 A 80 80 0 0 1 163 47" fill="none" stroke="url(#dialGrad)" stroke-width="14" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="dialGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3fb950"/>
+                <stop offset="50%" stop-color="#e3b341"/>
+                <stop offset="100%" stop-color="#f85149"/>
+              </linearGradient>
+            </defs>
+            <!-- Needle -->
+            <line x1="100" y1="110" x2="163" y2="47" stroke="#e3b341" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="100" cy="110" r="5" fill="#e3b341"/>
+            <!-- Labels -->
+            <text x="100" y="88" class="risk-label-big" fill="#e3b341">68%</text>
+            <text x="100" y="102" class="risk-label-sub">ACQUITTAL RISK</text>
+            <text x="22" y="125" font-family="IBM Plex Mono" font-size="9" fill="#8b949e">LOW</text>
+            <text x="175" y="125" font-family="IBM Plex Mono" font-size="9" fill="#8b949e">HIGH</text>
+          </svg>
+          <div class="risk-factors">
+            <div class="risk-factor-row">
+              <span class="rf-name">No PM report</span>
+              <span class="rf-impact rf-neg">+18% risk</span>
+            </div>
+            <div class="risk-factor-row">
+              <span class="rf-name">Witnesses unexamined</span>
+              <span class="rf-impact rf-neg">+14% risk</span>
+            </div>
+            <div class="risk-factor-row">
+              <span class="rf-name">Weapon not recovered</span>
+              <span class="rf-impact rf-neg">+12% risk</span>
+            </div>
+            <div class="risk-factor-row">
+              <span class="rf-name">Documentary motive</span>
+              <span class="rf-impact rf-pos">−9% risk</span>
+            </div>
+            <div class="risk-factor-row">
+              <span class="rf-name">CCTV corroboration</span>
+              <span class="rf-impact rf-pos">−7% risk</span>
+            </div>
+            <div class="risk-factor-row">
+              <span class="rf-name">SI-recorded dying decl.</span>
+              <span class="rf-impact rf-neg">+8% risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post-remediation -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">After Remediation</div>
+          <div class="card-tag">IF ALL GAPS CLOSED</div>
+        </div>
+        <div class="risk-dial-wrap">
+          <svg class="risk-dial-svg" width="200" height="130" viewBox="0 0 200 130">
+            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="#30363d" stroke-width="14" stroke-linecap="round"/>
+            <!-- 21% = ~38 deg -->
+            <path d="M 20 110 A 80 80 0 0 1 60 45" fill="none" stroke="#3fb950" stroke-width="14" stroke-linecap="round"/>
+            <line x1="100" y1="110" x2="60" y2="45" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="100" cy="110" r="5" fill="#3fb950"/>
+            <text x="100" y="88" class="risk-label-big" fill="#3fb950">21%</text>
+            <text x="100" y="102" class="risk-label-sub">ACQUITTAL RISK</text>
+            <text x="22" y="125" font-family="IBM Plex Mono" font-size="9" fill="#8b949e">LOW</text>
+            <text x="175" y="125" font-family="IBM Plex Mono" font-size="9" fill="#8b949e">HIGH</text>
+          </svg>
+          <div style="text-align:center;margin-top:0.5rem;">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--green);">↓ 47 percentage points</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--mist);margin-top:0.2rem;">if all 5 evidence gaps remediated</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historical context -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">§103 Outcome History</div>
+          <div class="card-tag">KARNATAKA HC · 2018–2025</div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+              <span style="font-size:0.82rem;color:var(--paper);">Convicted</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--green);">44%</span>
+            </div>
+            <div class="score-track"><div class="score-fill green" style="width:44%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+              <span style="font-size:0.82rem;color:var(--paper);">Acquitted on merit</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--red);">31%</span>
+            </div>
+            <div class="score-track"><div class="score-fill red" style="width:31%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+              <span style="font-size:0.82rem;color:var(--paper);">Bail by default (BNSS)</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--amber);">14%</span>
+            </div>
+            <div class="score-track"><div class="score-fill amber" style="width:14%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+              <span style="font-size:0.82rem;color:var(--paper);">Compounded / settled</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--mist);">11%</span>
+            </div>
+            <div class="score-track"><div class="score-fill" style="width:11%;background:var(--ink-4)"></div></div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:0.75rem;font-size:0.82rem;color:var(--mist);line-height:1.5;">
+            847 §103 cases indexed. Conviction rate drops to <strong style="color:var(--red);">22%</strong> when PM report is absent at filing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- DEADLINES -->
+  <main class="main" id="section-deadlines" style="display:none;">
+    <div class="page-header">
+      <div>
+        <div class="page-title">BNSS §193 Deadline Compliance</div>
+        <div class="page-subtitle">60-DAY (SESSIONS) / 90-DAY (MAGISTRATE) CHARGESHEET DEADLINES · REAL-TIME TRACKING</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showSection('dashboard')">← Back</button>
+        <button class="btn btn-ghost">Export PDF</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="stat-label">Deadline Breached</div>
+        <div class="stat-value red">2</div>
+        <div class="stat-delta">Bail-by-default risk active</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Critical (≤5 days)</div>
+        <div class="stat-value amber">3</div>
+        <div class="stat-delta">Immediate action required</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Warning (≤15 days)</div>
+        <div class="stat-value gold">7</div>
+        <div class="stat-delta">Prepare chargesheets now</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">On Track</div>
+        <div class="stat-value green">35</div>
+        <div class="stat-delta">No action needed</div>
+      </div>
+    </div>
+
+    <!-- Critical cases -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🚨 Breached & Critical Cases</div>
+        <div class="card-tag">IMMEDIATE ACTION REQUIRED</div>
+      </div>
+
+      <!-- Case 1 — breached -->
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(248,81,73,0.04);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--red);letter-spacing:0.1em;margin-bottom:0.2rem;">◉ DEADLINE BREACHED · CS-2026-0314</div>
+            <div style="font-family:'EB Garamond',serif;font-size:1.2rem;">State v. Arjun Nayak — IPC §302 (Murder)</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--mist);margin-top:0.25rem;">Yelahanka PS · SI Mohan Kumar · FIR: 06 JAN 2026</div>
+          </div>
+          <span class="risk-badge risk-high">BREACHED +7 DAYS</span>
+        </div>
+        <!-- Timeline -->
+        <div class="timeline" style="padding:0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--mist);letter-spacing:0.08em;margin-bottom:0.5rem;">BNSS §193 TIMELINE — 60-DAY RULE (SESSIONS COURT)</div>
+          <div class="timeline-track">
+            <div class="timeline-fill" style="width:112%"></div>
+            <div class="timeline-cursor" style="left:112%;border-color:var(--red);box-shadow:0 0 10px var(--red);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--mist);margin-top:0.3rem;">
+            <span>Day 0 — FIR Filed<br>06 Jan</span>
+            <span style="text-align:center;">Day 45 — Alert Trigger<br>20 Feb</span>
+            <span style="text-align:center;color:var(--red);">Day 60 — DEADLINE<br>06 Mar ✗ MISSED</span>
+            <span style="text-align:right;color:var(--red);">TODAY Day 67<br>18 Mar</span>
+          </div>
+        </div>
+        <div class="deadline-callout" style="margin-top:0.75rem;background:rgba(248,81,73,0.06);border-color:rgba(248,81,73,0.25);">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-text">Chargesheet <strong style="color:var(--red);">not filed</strong>. Accused Arjun Nayak is entitled to bail by default under BNSS §193. File application for court's direction immediately. PP must appear in court today.</div>
+        </div>
+      </div>
+
+      <!-- Case 2 — 2 days left -->
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(227,179,65,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--amber);letter-spacing:0.1em;margin-bottom:0.2rem;">◉ CRITICAL — 2 DAYS REMAINING · CS-2026-0289</div>
+            <div style="font-family:'EB Garamond',serif;font-size:1.2rem;">State v. Suresh Rao — POCSO §6</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--mist);margin-top:0.25rem;">Indiranagar PS · SI Priya Singh · FIR: 18 DEC 2025</div>
+          </div>
+          <span class="risk-badge risk-medium">DAY 88 OF 90</span>
+        </div>
+        <div class="timeline" style="padding:0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--mist);letter-spacing:0.08em;margin-bottom:0.5rem;">BNSS §193 TIMELINE — 90-DAY RULE (POCSO / MAGISTRATE COURT)</div>
+          <div class="timeline-track">
+            <div class="timeline-fill" style="width:97%"></div>
+            <div class="timeline-cursor" style="left:97%;border-color:var(--amber);box-shadow:0 0 10px var(--amber);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--mist);margin-top:0.3rem;">
+            <span>Day 0 — FIR Filed<br>18 Dec</span>
+            <span style="text-align:center;">Day 60 — First Alert<br>16 Feb</span>
+            <span style="text-align:center;color:var(--amber);">TODAY Day 88<br>18 Mar ⚡</span>
+            <span style="text-align:right;color:var(--red);">Day 90 — DEADLINE<br>20 Mar</span>
+          </div>
+        </div>
+        <div class="deadline-callout" style="margin-top:0.75rem;">
+          <span class="callout-icon">⏱️</span>
+          <div class="callout-text">Chargesheet must be filed by <strong>Thursday, 20 March 2026</strong>. POCSO Special Court, Bengaluru. IO Priya Singh has been notified. Chargesheet draft status: <strong style="color:var(--amber);">80% complete — FSL report pending.</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Impact callout -->
+    <div style="background:rgba(212,160,23,0.05);border:1px solid rgba(212,160,23,0.2);border-radius:3px;padding:1.5rem 2rem;display:flex;align-items:center;gap:2rem;">
+      <div style="flex-shrink:0;text-align:center;">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2.5rem;color:var(--gold);line-height:1;">12,500</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--mist);letter-spacing:0.1em;margin-top:0.2rem;">BAIL-BY-DEFAULT<br>RELEASES / YEAR</div>
+      </div>
+      <div style="height:50px;width:1px;background:var(--border);"></div>
+      <div style="font-family:'EB Garamond',serif;font-size:1rem;color:var(--paper);line-height:1.6;font-style:italic;">
+        Karnataka processes <strong style="color:var(--cream);font-style:normal;">250,000 FIRs annually</strong>. 10% reach Sessions Court. Conservative estimate: 50% have chargesheet compliance gaps. A 5% compliance improvement — achievable with deadline alerting — eliminates <strong style="color:var(--gold);font-style:normal;">12,500 bail-by-default releases per year</strong> across Karnataka.
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+function showSection(name) {
+  const sections = ['dashboard','chargesheet','similar','acquittal','deadlines'];
+  sections.forEach(s => {
+    const el = document.getElementById('section-' + s);
+    if(el) el.style.display = (s === name) ? 'flex' : 'none';
+  });
+  // update sidebar active
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+}
+</script>
+
+</body>
+</html>
