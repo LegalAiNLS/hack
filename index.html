@@ -6,15 +6,36 @@
 <title>Nyaya Assist — Justice Intelligence Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ── LIGHT MODE (default) ── */
 :root {
   --ink: #f0f2f5; --ink2: #ffffff; --ink3: #e8eaed; --ink4: #d0d4da;
   --mist: #6b7280; --paper: #374151; --cream: #111827;
   --gold: #b45309; --gold-dim: #92400e;
   --red: #dc2626; --amber: #d97706; --green: #16a34a; --blue: #2563eb;
   --saffron: #ea580c; --border: rgba(0,0,0,0.1);
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --ink: #0d1117; --ink2: #161b22; --ink3: #21262d; --ink4: #30363d;
+  --mist: #8b949e; --paper: #c9d1d9; --cream: #e6edf3;
+  --gold: #d4a017; --gold-dim: #a07a10;
+  --red: #f85149; --amber: #e3b341; --green: #3fb950; --blue: #58a6ff;
+  --saffron: #ff9933; --border: rgba(48,54,61,0.9);
+  --shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;transition:background 0.25s,color 0.25s;}
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle{display:flex;align-items:center;gap:0.4rem;background:var(--ink3);border:1px solid var(--ink4);border-radius:20px;padding:4px 10px 4px 6px;cursor:pointer;transition:all 0.2s;user-select:none;flex-shrink:0;}
+.theme-toggle:hover{border-color:var(--mist);}
+.theme-toggle-track{width:28px;height:16px;background:var(--ink4);border-radius:8px;position:relative;transition:background 0.25s;flex-shrink:0;}
+[data-theme="dark"] .theme-toggle-track{background:var(--gold-dim);}
+.theme-toggle-thumb{width:12px;height:12px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.25s,background 0.25s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+[data-theme="dark"] .theme-toggle-thumb{transform:translateX(12px);background:var(--gold);}
+.theme-toggle-label{font-family:'Inter',sans-serif;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--mist);transition:color 0.2s;white-space:nowrap;}
+.theme-toggle-icon{font-size:0.75rem;line-height:1;}
 
 /* TOPBAR */
 .topbar{background:var(--ink2);border-bottom:1px solid var(--border);padding:0 1.5rem;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
@@ -90,7 +111,7 @@ body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans
 
 /* CARD */
 .card{background:var(--ink2);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
-.card-header{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1.1rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.03);}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1.1rem;border-bottom:1px solid var(--border);background:var(--tint);}
 .card-title{font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;}
 .card-tag{font-family:'Inter',sans-serif;font-size:0.58rem;color:var(--mist);letter-spacing:0.07em;}
 .card-body{padding:1.1rem;}
@@ -233,7 +254,7 @@ body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans
 
 /* FIR TABLE */
 .fir-table{width:100%;border-collapse:collapse;}
-.fir-table th{font-family:'Inter',sans-serif;font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--mist);text-align:left;padding:0.5rem 0.9rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.03);}
+.fir-table th{font-family:'Inter',sans-serif;font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--mist);text-align:left;padding:0.5rem 0.9rem;border-bottom:1px solid var(--border);background:var(--tint);}
 .fir-table td{padding:0.65rem 0.9rem;border-bottom:1px solid rgba(48,54,61,0.4);font-size:0.83rem;color:var(--paper);vertical-align:middle;}
 .fir-table tr:last-child td{border-bottom:none;}
 .fir-table tr:hover td{background:var(--ink3);}
@@ -253,10 +274,10 @@ body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans
 .prog-val{font-family:'Inter',sans-serif;font-size:0.65rem;color:var(--mist);width:32px;text-align:right;flex-shrink:0;}
 
 /* MODAL OVERLAY */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.modal-overlay{display:none;position:fixed;inset:0;background:var(--overlay);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--ink2);border:1px solid var(--border);border-radius:4px;width:600px;max-width:90vw;max-height:80vh;overflow-y:auto;}
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.03);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--tint);}
 .modal-title{font-family:'Inter',sans-serif;font-weight:600;font-size:0.9rem;}
 .modal-close{background:none;border:none;color:var(--mist);font-size:1.1rem;cursor:pointer;padding:0 0.2rem;}
 .modal-close:hover{color:var(--cream);}
@@ -280,8 +301,28 @@ body{background:var(--ink);color:var(--cream);font-family:'Inter',system-ui,sans
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--ink4);border-radius:2px;}
 
+/* ── THEME-AWARE SURFACE TINT ── */
+:root { --tint: rgba(0,0,0,0.03); --overlay: rgba(0,0,0,0.45); }
+[data-theme="dark"] { --tint: rgba(255,255,255,0.03); --overlay: rgba(0,0,0,0.75); }
+
 /* SHO MODE OVERRIDE */
 body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-color:var(--saffron);color:var(--saffron);}
+
+/* DARK MODE — badge & comp-table header overrides */
+[data-theme="dark"] .old-law.ipc{color:#c4b5fd;background:rgba(196,181,253,0.08);border-color:rgba(196,181,253,0.2);}
+[data-theme="dark"] .old-law.crpc{color:#7dd3fc;background:rgba(125,211,252,0.08);border-color:rgba(125,211,252,0.2);}
+[data-theme="dark"] .old-law.iea{color:#6ee7b7;background:rgba(110,231,183,0.08);border-color:rgba(110,231,183,0.2);}
+[data-theme="dark"] .comp-section-header{background:rgba(255,255,255,0.03);color:var(--mist);}
+[data-theme="dark"] .comp-section-header.bns{background:rgba(88,166,255,0.05);color:var(--blue);}
+[data-theme="dark"] .comp-section-header.bnss{background:rgba(56,189,248,0.05);color:#7dd3fc;}
+[data-theme="dark"] .comp-section-header.bsa{background:rgba(110,231,183,0.05);color:#6ee7b7;}
+[data-theme="dark"] .tag-new{background:rgba(63,185,80,0.12);color:var(--green);border-color:rgba(63,185,80,0.25);}
+[data-theme="dark"] .tag-mod{background:rgba(227,179,65,0.12);color:var(--amber);border-color:rgba(227,179,65,0.25);}
+[data-theme="dark"] .tag-same{background:rgba(139,148,158,0.12);color:var(--mist);border-color:rgba(139,148,158,0.2);}
+[data-theme="dark"] .comp-table tr:hover td{background:var(--ink3);}
+[data-theme="dark"] .nb-amber{color:var(--ink2);}
+[data-theme="dark"] .gap-item{border-bottom-color:rgba(48,54,61,0.5);}
+[data-theme="dark"] .rf-row{border-bottom-color:rgba(48,54,61,0.5);}
 
 /* OLD-LAW ANNOTATION BADGE */
 .old-law{display:inline-flex;align-items:center;gap:3px;font-size:0.58rem;font-weight:500;color:var(--mist);background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.2);border-radius:2px;padding:1px 5px;margin-left:5px;vertical-align:middle;white-space:nowrap;line-height:1.4;}
@@ -292,7 +333,7 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
 
 /* BNS-IPC COMPARISON TABLE */
 .comp-table{width:100%;border-collapse:collapse;}
-.comp-table th{font-size:0.6rem;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--mist);text-align:left;padding:0.55rem 0.9rem;border-bottom:2px solid var(--border);background:rgba(0,0,0,0.03);}
+.comp-table th{font-size:0.6rem;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--mist);text-align:left;padding:0.55rem 0.9rem;border-bottom:2px solid var(--border);background:var(--tint);}
 .comp-table th.col-new{color:var(--blue);}
 .comp-table th.col-old{color:#7c3aed;}
 .comp-table th.col-proc{color:#0369a1;}
@@ -332,6 +373,11 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
       <div class="user-dot"></div>
       <span id="user-label">PP Ravi Kumar, Bengaluru City</span>
     </div>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+      <span class="theme-toggle-icon" id="theme-icon">☀️</span>
+      <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
+      <span class="theme-toggle-label" id="theme-label">Light</span>
+    </button>
   </div>
 </header>
 
@@ -356,6 +402,11 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
     <div class="nav-item" onclick="navigate('pp-acquittal')">
       <span class="nav-icon">◐</span> Acquittal Risk
       <span class="nav-badge nb-red">3</span>
+    </div>
+    <div class="sidebar-section">Dispute Resolution</div>
+    <div class="nav-item" onclick="navigate('pp-resolution')">
+      <span class="nav-icon">⚖</span> Resolution Triage
+      <span class="nav-badge nb-amber">1</span>
     </div>
     <div class="sidebar-section">Compliance</div>
     <div class="nav-item" onclick="navigate('pp-deadlines')">
@@ -453,6 +504,12 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
         <div class="alert-meta">RISK SCORE<br>AI analysis</div>
         <div><div class="alert-val" style="color:var(--amber)">68%</div><div style="font-family:'Inter',sans-serif;font-size:0.55rem;color:var(--mist);text-align:right;">acquittal risk</div></div>
       </div>
+      <div class="alert-row" onclick="navigate('pp-resolution')">
+        <div class="adot green"></div>
+        <div><div class="alert-case">CS-2026-0441 · BNS §115 <span class="old-law ipc">IPC §323</span> (Voluntarily causing hurt)</div><div class="alert-desc">State v. Manjunath — Lok Adalat referral recommended</div></div>
+        <div class="alert-meta">BNSS §359<br>compoundable</div>
+        <div><div class="alert-val" style="color:var(--green)">§359</div><div style="font-family:'Inter',sans-serif;font-size:0.55rem;color:var(--mist);text-align:right;">eligible</div></div>
+      </div>
       <div class="alert-row" onclick="navigate('pp-chargesheet')">
         <div class="adot amber"></div>
         <div><div class="alert-case">CS-2026-0441 · BNS §105 <span class="old-law ipc">IPC §304</span></div><div class="alert-desc">State v. Prakash Reddy — Evidence gap detected</div></div>
@@ -503,6 +560,7 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
     <div class="header-actions">
       <button class="btn btn-ghost" onclick="navigate('pp-dashboard')">← Back</button>
       <button class="btn btn-blue" onclick="navigate('pp-similar')">View Similar Cases</button>
+      <button class="btn" style="background:rgba(22,163,74,0.15);color:var(--green);border:1px solid rgba(22,163,74,0.3);" onclick="navigate('pp-resolution')">⚖ Dispute Resolution Brief</button>
       <button class="btn btn-gold" onclick="showToast('📨 Supplementary investigation request sent to IO', 'saffron')">Request Supp. Investigation</button>
     </div>
   </div>
@@ -714,7 +772,7 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
       <div style="padding:1.25rem;text-align:center;">
         <svg width="190" height="120" viewBox="0 0 190 120" style="overflow:visible;">
           <defs><linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3fb950"/><stop offset="50%" stop-color="#e3b341"/><stop offset="100%" stop-color="#f85149"/></linearGradient></defs>
-          <path d="M 15 105 A 80 80 0 0 1 175 105" fill="none" stroke="#21262d" stroke-width="13" stroke-linecap="round"/>
+          <path d="M 15 105 A 80 80 0 0 1 175 105" fill="none" stroke="var(--ink4)" class="gauge-track" stroke-width="13" stroke-linecap="round"/>
           <path d="M 15 105 A 80 80 0 0 1 162 42" fill="none" stroke="url(#dg1)" stroke-width="13" stroke-linecap="round"/>
           <line x1="95" y1="105" x2="162" y2="42" stroke="#e3b341" stroke-width="2.5" stroke-linecap="round"/>
           <circle cx="95" cy="105" r="5" fill="#e3b341"/>
@@ -737,7 +795,7 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
       <div class="card-header"><div class="card-title">After Remediation</div><div class="card-tag">IF ALL GAPS CLOSED</div></div>
       <div style="padding:1.25rem;text-align:center;">
         <svg width="190" height="120" viewBox="0 0 190 120" style="overflow:visible;">
-          <path d="M 15 105 A 80 80 0 0 1 175 105" fill="none" stroke="#21262d" stroke-width="13" stroke-linecap="round"/>
+          <path d="M 15 105 A 80 80 0 0 1 175 105" fill="none" stroke="var(--ink4)" class="gauge-track" stroke-width="13" stroke-linecap="round"/>
           <path d="M 15 105 A 80 80 0 0 1 55 41" fill="none" stroke="#3fb950" stroke-width="13" stroke-linecap="round"/>
           <line x1="95" y1="105" x2="55" y2="41" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"/>
           <circle cx="95" cy="105" r="5" fill="#3fb950"/>
@@ -1821,6 +1879,243 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
   </div>
 </section>
 
+<!-- ════════════════════════════════════════
+     PP DISPUTE RESOLUTION TRIAGE
+════════════════════════════════════════ -->
+<section class="main-section" id="pp-resolution">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dispute Resolution Triage</div>
+      <div class="page-subtitle">CHARGESHEET-STAGE RESOLUTION PATHWAYS · BNSS §289–302 (PLEA) · §359 (COMPOUNDING) · LOK ADALAT</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="navigate('pp-dashboard')">← Back</button>
+      <button class="btn btn-ghost" onclick="showToast('📄 Resolution brief exported to PDF', 'blue')">Export Brief</button>
+      <button class="btn" style="background:rgba(22,163,74,0.15);color:var(--green);border:1px solid rgba(22,163,74,0.3);" onclick="showToast('📨 Lok Adalat referral submitted to DLSA', 'green')">Submit to Lok Adalat ↗</button>
+    </div>
+  </div>
+
+  <!-- THEME BANNER -->
+  <div style="background:rgba(22,163,74,0.05);border:1px solid rgba(22,163,74,0.2);border-radius:3px;padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:1rem;">
+    <div style="font-size:1.4rem;flex-shrink:0;margin-top:2px;">⚖</div>
+    <div>
+      <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;color:var(--cream);margin-bottom:0.25rem;">AI for dispute prevention and resolution — not just prosecution</div>
+      <div style="font-size:0.83rem;color:var(--mist);line-height:1.55;">Nyaya Assist identifies, at the moment a chargesheet arrives, whether a criminal dispute should go to trial, be resolved through plea negotiation (BNSS §289–302), be referred to Lok Adalat (compoundable offences under BNSS §359), or be returned for supplementary investigation. Fewer trials. Earlier resolution. Lower cost for every party.</div>
+    </div>
+  </div>
+
+  <!-- TRIAGE QUEUE -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚡ Resolution Triage Queue</div><div class="card-tag">CHARGESHEET-STAGE · AI RECOMMENDATION</div></div>
+    <table class="fir-table">
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Accused</th>
+          <th>BNS Section</th>
+          <th>CS Score</th>
+          <th>Compoundable</th>
+          <th>AI Recommendation</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr onclick="showDRPanel('manjunath')">
+          <td style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--blue)">CS-2026-0447</td>
+          <td>Manjunath Gowda</td>
+          <td><span class="status-pill sp-green">BNS §115 <span class="old-law ipc">IPC §323</span></span></td>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--amber)">52/100</td>
+          <td><span class="status-pill sp-green">YES · §359</span></td>
+          <td><span class="status-pill" style="background:rgba(22,163,74,0.12);color:var(--green);border:1px solid rgba(22,163,74,0.25);">Lok Adalat</span></td>
+          <td><button class="btn" style="font-size:0.6rem;padding:4px 9px;background:rgba(22,163,74,0.12);color:var(--green);border:1px solid rgba(22,163,74,0.25);" onclick="event.stopPropagation();showDRPanel('manjunath')">View Brief →</button></td>
+        </tr>
+        <tr onclick="showDRPanel('prakash')">
+          <td style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--blue)">CS-2026-0441</td>
+          <td>Prakash Reddy</td>
+          <td><span class="status-pill sp-amber">BNS §105 <span class="old-law ipc">IPC §304</span></span></td>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--amber)">54/100</td>
+          <td><span class="status-pill sp-red">NO</span></td>
+          <td><span class="status-pill sp-amber">Supp. Investigation</span></td>
+          <td><button class="btn btn-ghost" style="font-size:0.6rem;padding:4px 9px;" onclick="event.stopPropagation();navigate('pp-chargesheet')">Score →</button></td>
+        </tr>
+        <tr onclick="showToast('CS-2026-0398: Strong case — proceed to trial', 'green')">
+          <td style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--blue)">CS-2026-0398</td>
+          <td>Mohammad Ismail</td>
+          <td><span class="status-pill sp-blue">BNS §309 <span class="old-law ipc">IPC §392</span></span></td>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--green)">81/100</td>
+          <td><span class="status-pill sp-red">NO</span></td>
+          <td><span class="status-pill sp-blue">Proceed to Trial</span></td>
+          <td><button class="btn btn-ghost" style="font-size:0.6rem;padding:4px 9px;" onclick="event.stopPropagation();showToast('Strong chargesheet — trial recommended', 'green')">Strong ✓</button></td>
+        </tr>
+        <tr onclick="showToast('CS-2026-0445: Plea negotiation recommended — first offender', 'amber')">
+          <td style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--blue)">CS-2026-0445</td>
+          <td>Srinivas Gowda</td>
+          <td><span class="status-pill sp-blue">BNS §303 <span class="old-law ipc">IPC §379</span></span></td>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--amber)">61/100</td>
+          <td><span class="status-pill" style="background:rgba(227,179,65,0.1);color:var(--amber);border:1px solid rgba(227,179,65,0.25);">PARTIAL</span></td>
+          <td><span class="status-pill sp-amber">Plea Bargaining</span></td>
+          <td><button class="btn btn-ghost" style="font-size:0.6rem;padding:4px 9px;" onclick="event.stopPropagation();showToast('BNSS §289 plea eligible — first offender', 'amber')">Plea →</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RESOLUTION BRIEF (shown/hidden) -->
+  <div id="dr-panel-manjunath" class="detail-panel" style="display:none;">
+    <div class="detail-banner" style="background:linear-gradient(135deg,rgba(22,163,74,0.1),rgba(22,163,74,0.02));border-bottom-color:rgba(22,163,74,0.25);">
+      <div>
+        <div class="case-id">RESOLUTION BRIEF · CS-2026-0447 · CUBBON PARK PS</div>
+        <div class="case-name">State v. Manjunath Gowda — BNS §115</div>
+      </div>
+      <span class="risk-badge" style="background:rgba(22,163,74,0.15);color:var(--green);border:1px solid rgba(22,163,74,0.3);">LOK ADALAT RECOMMENDED</span>
+    </div>
+    <div class="detail-grid cols-4">
+      <div class="dc"><div class="dk">Chargesheet score</div><div class="dv warn">52 / 100</div></div>
+      <div class="dc"><div class="dk">Compoundable</div><div class="dv ok">YES — BNSS §359(1)</div></div>
+      <div class="dc"><div class="dk">Similar case outcomes</div><div class="dv">4 Lok Adalat, 1 trial</div></div>
+      <div class="dc"><div class="dk">Victim consent obtained</div><div class="dv warn">Pending</div></div>
+    </div>
+
+    <!-- Pathway comparison -->
+    <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+      <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;margin-bottom:0.9rem;">Resolution pathway comparison</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+
+        <div style="background:rgba(22,163,74,0.06);border:1px solid rgba(22,163,74,0.22);border-radius:3px;padding:1rem;">
+          <div style="font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--green);letter-spacing:0.09em;margin-bottom:0.5rem;">✦ RECOMMENDED — LOK ADALAT</div>
+          <div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:var(--cream);margin-bottom:0.4rem;">BNSS §359(1) + LSA §19</div>
+          <div style="font-size:0.78rem;color:var(--mist);line-height:1.5;margin-bottom:0.6rem;">Voluntarily causing hurt (§115) is listed under BNSS §359 compoundable offences with victim consent. DLSA Bengaluru accepts referrals. No criminal record if settled.</div>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <div style="font-size:0.72rem;color:var(--green);">✓ Resolved in 1–3 sittings</div>
+            <div style="font-size:0.72rem;color:var(--green);">✓ No criminal record for accused</div>
+            <div style="font-size:0.72rem;color:var(--green);">✓ Victim receives compensation</div>
+            <div style="font-size:0.72rem;color:var(--green);">✓ Court slot freed</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(227,179,65,0.05);border:1px solid rgba(227,179,65,0.2);border-radius:3px;padding:1rem;">
+          <div style="font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--amber);letter-spacing:0.09em;margin-bottom:0.5rem;">◆ ALTERNATIVE — PLEA BARGAINING</div>
+          <div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:var(--cream);margin-bottom:0.4rem;">BNSS §289–302</div>
+          <div style="font-size:0.78rem;color:var(--mist);line-height:1.5;margin-bottom:0.6rem;">Accused may apply for plea bargaining. Eligible as first-time offender for BNS §115. Requires accused's voluntary application — cannot be initiated by prosecution.</div>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <div style="font-size:0.72rem;color:var(--amber);">~ Minimum ¼ of prescribed sentence</div>
+            <div style="font-size:0.72rem;color:var(--amber);">~ Accused-initiated only</div>
+            <div style="font-size:0.72rem;color:var(--amber);">~ Criminal record remains</div>
+          </div>
+        </div>
+
+        <div style="background:rgba(248,81,73,0.04);border:1px solid rgba(248,81,73,0.15);border-radius:3px;padding:1rem;">
+          <div style="font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--mist);letter-spacing:0.09em;margin-bottom:0.5rem;">▼ LAST RESORT — FULL TRIAL</div>
+          <div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:var(--cream);margin-bottom:0.4rem;">Sessions / Magistrate Court</div>
+          <div style="font-size:0.78rem;color:var(--mist);line-height:1.5;margin-bottom:0.6rem;">Current chargesheet score is 52/100 — below the 60-point conviction threshold. In 847 similar §115 cases, chargesheets below 60 acquit at 68%. Trial is not recommended with current evidence.</div>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <div style="font-size:0.72rem;color:var(--red);">✗ 68% acquittal risk at current score</div>
+            <div style="font-size:0.72rem;color:var(--red);">✗ 2–4 year timeline</div>
+            <div style="font-size:0.72rem;color:var(--red);">✗ Victim waits years for outcome</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Similar resolved cases -->
+    <div style="border-bottom:1px solid var(--border);">
+      <div style="padding:0.8rem 1.4rem;font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;">Similar cases resolved at Lok Adalat — BNS §115 Karnataka</div>
+      <div class="case-result">
+        <div class="cr-header"><div class="cr-name">State v. Rajan Kumar (through DLSA Bengaluru)</div><div class="cr-sim">Similarity: <span>92%</span></div></div>
+        <div class="cr-meta"><span>DLSA Bengaluru · 2024</span><span>BNS §115</span><span>Neighbourhood dispute</span></div>
+        <div class="cr-outcome"><div class="odot c"></div><span style="color:var(--green);font-weight:500;">Settled at Lok Adalat · ₹25,000 compensation to victim</span></div>
+        <div class="cr-snippet">Parties agreed after one sitting. <span class="hl">Victim withdrew complaint after receiving compensation.</span> Case disposed in 45 days. Neither party incurred legal costs beyond court appearance.</div>
+      </div>
+      <div class="case-result">
+        <div class="cr-header"><div class="cr-name">State v. Suresh D. (through DLSA Mysuru)</div><div class="cr-sim">Similarity: <span>88%</span></div></div>
+        <div class="cr-meta"><span>DLSA Mysuru · 2023</span><span>BNS §115 + §117</span><span>Property boundary dispute</span></div>
+        <div class="cr-outcome"><div class="odot c"></div><span style="color:var(--green);font-weight:500;">Settled · ₹40,000 compensation + written apology</span></div>
+        <div class="cr-snippet"><span class="hl">Lok Adalat award has decree status under LSA §21 — no appeal possible.</span> Resolved in 2 sittings. IO de-assigned within same month.</div>
+      </div>
+    </div>
+
+    <!-- Resolution brief -->
+    <div style="padding:1.1rem 1.4rem;">
+      <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;margin-bottom:0.75rem;">One-page resolution brief — for first court appearance</div>
+      <div style="background:var(--ink3);border:1px solid var(--border);border-radius:2px;padding:1rem 1.25rem;font-size:0.83rem;color:var(--paper);line-height:1.65;">
+        <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;color:var(--cream);margin-bottom:0.5rem;">IN THE COURT OF THE METROPOLITAN MAGISTRATE, BENGALURU<br>State v. Manjunath Gowda — CC No. 0447/2026 — BNS §115</div>
+        <div style="margin-bottom:0.5rem;"><strong style="color:var(--cream);">Prosecution's position on dispute resolution:</strong> The prosecution has reviewed the chargesheet in this matter. The offence under BNS §115 (voluntarily causing hurt) is listed as compoundable under BNSS §359(1) with the permission of the Court. The chargesheet score is 52/100, indicating that the prosecution's evidentiary position carries material risk of acquittal at trial.</div>
+        <div style="margin-bottom:0.5rem;"><strong style="color:var(--cream);">Resolution recommendation:</strong> The prosecution recommends referral of this matter to the District Legal Services Authority, Bengaluru for Lok Adalat settlement under the Legal Services Authorities Act 1987 §19. In 4 of 5 similar Karnataka cases resolved at Lok Adalat (2023–2024), parties settled within 2 sittings with compensation averaging ₹30,000 to the victim.</div>
+        <div style="margin-bottom:0.5rem;"><strong style="color:var(--cream);">Legal basis:</strong> BNSS §359(1) — compoundable by victim with court permission. LSA §21 — Lok Adalat award has decree status, no appeal. BNSS §289 — plea bargaining available as alternative if accused applies.</div>
+        <div style="font-size:0.75rem;color:var(--mist);margin-top:0.5rem;font-style:italic;">Generated by Nyaya Assist AI · Decision support only · Independent prosecutorial judgement required · Not for citation in court proceedings</div>
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+        <button class="btn" style="background:rgba(22,163,74,0.12);color:var(--green);border:1px solid rgba(22,163,74,0.25);" onclick="showToast('📨 Lok Adalat referral submitted to DLSA Bengaluru', 'green')">Submit to DLSA Bengaluru ↗</button>
+        <button class="btn btn-ghost" onclick="showToast('📄 Resolution brief exported to PDF', 'blue')">Export PDF</button>
+        <button class="btn btn-ghost" onclick="showToast('📧 Brief shared with defence counsel', 'blue')">Share with Defence</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Impact callout -->
+  <div class="impact-banner">
+    <div class="impact-num"><div class="impact-num-val" style="color:var(--green)">25,000</div><div class="impact-num-label">DISPUTES DIVERTED<br>FROM TRIAL / YEAR</div></div>
+    <div class="impact-divider"></div>
+    <div class="impact-text">If Nyaya Assist diverts <strong style="color:var(--cream);font-style:normal;">10% of Karnataka's chargesheet-stage cases</strong> to Lok Adalat, plea, or compounding — that is 25,000 disputes resolved without a contested trial per year. For victims, resolution in weeks instead of years. For courts, 25,000 hearing slots freed. For accused whose offence is compoundable, a pathway the system never previously offered them.</div>
+  </div>
+
+  <!-- BNSS Resolution Reference -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚖ BNSS Dispute Resolution Provisions — Quick Reference</div><div class="card-tag">FOR PROSECUTOR USE AT CHARGESHEET STAGE</div></div>
+    <table class="fir-table">
+      <thead>
+        <tr>
+          <th>Provision</th>
+          <th>Mechanism</th>
+          <th>Who initiates</th>
+          <th>Eligible offences</th>
+          <th>Outcome</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--green);">BNSS §359(1)</td>
+          <td>Compounding with victim consent + court permission</td>
+          <td style="font-size:0.78rem;">Victim + Accused</td>
+          <td style="font-size:0.78rem;">56 listed BNS sections incl. §115, §303, §316, §318</td>
+          <td><span class="status-pill sp-green">No criminal record</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--green);">LSA §19 (Lok Adalat)</td>
+          <td>Settlement through Legal Services Authority</td>
+          <td style="font-size:0.78rem;">Any party / Court / PP</td>
+          <td style="font-size:0.78rem;">All compoundable + pre-litigation disputes</td>
+          <td><span class="status-pill sp-green">Decree status, no appeal</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--amber);">BNSS §289–302</td>
+          <td>Plea bargaining — accused applies voluntarily</td>
+          <td style="font-size:0.78rem;">Accused only</td>
+          <td style="font-size:0.78rem;">Offences with max sentence ≤ 7 years; not against women/children</td>
+          <td><span class="status-pill sp-amber">Min ¼ sentence; criminal record</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--blue);">BNSS §193(2)</td>
+          <td>Supplementary investigation — return to IO</td>
+          <td style="font-size:0.78rem;">PP / Court direction</td>
+          <td style="font-size:0.78rem;">Any case where evidence gaps identified at chargesheet stage</td>
+          <td><span class="status-pill sp-blue">Stronger chargesheet before trial</span></td>
+        </tr>
+        <tr>
+          <td style="font-family:'Inter',sans-serif;font-weight:700;color:var(--mist);">BNSS §359(2)</td>
+          <td>Compounding without consent (court discretion)</td>
+          <td style="font-size:0.78rem;">Court</td>
+          <td style="font-size:0.78rem;">Specific listed offences where court may compound despite victim objection</td>
+          <td><span class="status-pill sp-blue">Case-by-case; rare</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:0.75rem 1.1rem;font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--mist);border-top:1px solid var(--border);">
+      Compoundability check is auto-run on every chargesheet received. Nyaya Assist flags eligible cases before the first court appearance.
+    </div>
+  </div>
+</section>
+
 </div><!-- .shell -->
 
 <!-- MODAL -->
@@ -1841,6 +2136,36 @@ body.sho-mode .nav-item.active{background:rgba(255,153,51,0.08);border-left-colo
 </div>
 
 <script>
+// ── THEME TOGGLE ──
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('nyaya-theme', next);
+  updateThemeUI(next);
+}
+function updateThemeUI(theme) {
+  const icon  = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (theme === 'dark') {
+    icon.textContent  = '🌙';
+    label.textContent = 'Dark';
+  } else {
+    icon.textContent  = '☀️';
+    label.textContent = 'Light';
+  }
+}
+// Init theme from localStorage or system preference
+(function(){
+  const saved = localStorage.getItem('nyaya-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  // Wait for DOM then update button labels
+  document.addEventListener('DOMContentLoaded', () => updateThemeUI(theme));
+})();
+
 // ── STATE ──
 let currentRole = 'pp';
 let currentSection = 'pp-dashboard';
@@ -1924,6 +2249,16 @@ function openModal(title, html) {
 }
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ── DISPUTE RESOLUTION PANEL TOGGLE ──
+function showDRPanel(caseId) {
+  document.querySelectorAll('[id^="dr-panel-"]').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('dr-panel-' + caseId);
+  if (panel) {
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Init
